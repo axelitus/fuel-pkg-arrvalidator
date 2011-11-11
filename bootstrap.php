@@ -3,7 +3,7 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.0
+ * @version    1.1
  * @author     Fuel Development Team
  * @license    MIT License
  * @copyright  2010 - 2011 Fuel Development Team
@@ -11,18 +11,18 @@
  */
 
 /**
- * Arr\Validator Bootstrap
+ * ArrValidator
  *
  * @package     Fuel
- * @subpackage  Arr Validator
+ * @subpackage  ArrValidator
+ * @author      Axel Pardemann (http://github.com/axelitus)
+ * @link        http://github.com/axelitus/fuel-pkg-arrvalidator
  */
-Autoloader::add_core_namespace('Arr');
+Autoloader::add_core_namespace('ArrValidator');
  
 Autoloader::add_classes(array(
-	'Arr\\Arr_Validator'					=> __DIR__.'/classes/arr/validator.php',
-	'Arr\\Arr_Validator_Rule'				=> __DIR__.'/classes/arr/validator/rule.php',
-	'Arr\\Arr_Validator_Operator'			=> __DIR__.'/classes/arr/validator/operator.php',
-	'Arr\\Arr_Validator_Glue'				=> __DIR__.'/classes/arr/validator/glue.php',
-	'Arr\\Arr_Validator_Rule_Group'			=> __DIR__.'/classes/arr/validator/rule/group.php',
-	'Arr\\Arr_Validator_Node'				=> __DIR__.'/classes/arr/validator/node.php',
+	'ArrValidator\\ArrValidator'					=> __DIR__.'/classes/arrvalidator.php',
+	'ArrValidator\\ArrValidator_Node'				=> __DIR__.'/classes/arrvalidator/node.php',
+	'ArrValidator\\ArrValidator_Operator'			=> __DIR__.'/classes/arrvalidator/operator.php',
+	'ArrValidator\\OperatorNotSupportedException'	=> __DIR__.'/classes/arrvalidator/operator.php'
 ));
