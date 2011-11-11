@@ -49,6 +49,11 @@ class ArrValidator
 	 */
 	protected $_nodes = array();
 
+	public static function _init()
+	{
+		// TODO: Load config, auto-load validators from config
+	}
+
 	/**
 	 * Prevent direct instantiation.
 	 *
@@ -195,37 +200,21 @@ class ArrValidator
 	 * Adds a node only if it does not exist. If the node already exists it will be returned.
 	 * If the $overwrite flag is set to true, then the existing node will be overwritten.
 	 *
-	 * @param string $name the node's identifier as a dot-separated key name, an ArrValidator_Node object
-	 * or an ArrValidator_Node array representation.
-	 * @param mixed $default optional the node's default value (will be set to null, be careful).
+	 * @param string $name the node's identifier as a dot-separated key name
+	 * @param mixed $default optional the node's default value
 	 * @param bool overwrite optional flag to force overwritting the node.
 	 * @param array $rules optional an array of rules in the format:
 	 * array(array('operator' => string, ['operand' => mixed]))
 	 * @return ArrValidator_Node the added or previously existing node.
 	 */
-	public function add_node($name, $default = null, $overwrite = false, array $rules = array())
+	public function add_node($name, $default, $overwrite = false, array $rules = array())
 	{
-		if (is_object($default) && $default instanceof ArrValidator_Node)
-		{
-			$node = $default;
-		}
-		elseif(is_array($name))
-		{
-			$node = ArrValidator_Node::from_array($name);
-		}
-		elseif(is_string($name))
-		{
-			$node = ArrValidator_Node::forge($default);
-			$node->add_rules($rules);
-		}
-		else
-		{
-			throw new InvalidArgumentException('We cannot add a node from the given parameters, please verify them and try again.');
-		}
-		
+		$node = ArrValidator_Node::forge($default);
+		$node->add_rules($rules);
+
 		if ($overwrite || ! $this->has_node($name))
 		{
-			$this->_nodes[$node->get_name()] = $node;
+			$this->_nodes[$name] = $node;
 		}
 
 		return $node;
@@ -424,4 +413,5 @@ class ArrValidator
 		}
 	}
 
+	// TODO: methods to read validators from config files
 }
