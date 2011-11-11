@@ -342,7 +342,7 @@ class ArrValidator_Node
 					// Apply operator. If the result is false then set the return value accordingly and break the loop.
 					if (ArrValidator_Operator::apply($item, $rule['operator'], $operand) === false)
 					{
-						\Log::info('The operator \''.$rule['operator'].'\' failed for key \''.$key.'\' with secondary operand '.static::_operand_to_str($operand).'.');
+						\Log::info('ArrValidator\ArrValidator_Node::validate - The operator \''.$rule['operator'].'\' failed for key \''.$key.'\' with secondary operand '.static::_operand_to_str($operand).'.');
 						return false;
 					}
 				}
@@ -351,7 +351,7 @@ class ArrValidator_Node
 					// Only if the operator is different than NOT_IS_SET set the return to false and break the loop.
 					if ($rule['operator'] != ArrValidator_Operator::NOT_IS_SET)
 					{
-						\Log::info('The operator \''.$rule['operator'].'\' failed for key \''.$key.'\' with secondary operand '.static::_operand_to_str($operand).'.');
+						\Log::info('ArrValidator\ArrValidator_Node::validate - The operator \''.$rule['operator'].'\' failed for key \''.$key.'\' with secondary operand '.static::_operand_to_str($operand).'.');
 						return null;
 					}
 				}

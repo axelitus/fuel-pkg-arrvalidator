@@ -454,7 +454,7 @@ class ArrValidator
 					// A rule has failed for the node, set the default value!
 					\Arr::set($array, $key, $node->get_default());
 
-					\Log::info('The node \''.$key.'\' does not exist in the given array and the rules failed to comply. As the force_set flag is set to true, the node was created in the given array with the default value.');
+					\Log::info('ArrValidator\ArrValidator::run - The node \''.$key.'\' does not exist in the given array and the rules failed to comply. As the force_set flag is set to true, the node was created in the given array with the default value.');
 				}
 			}
 			elseif ($validation === false)
@@ -462,7 +462,7 @@ class ArrValidator
 				// A rule has failed for the node, set the default value!
 				\Arr::set($array, $key, $node->get_default());
 
-				\Log::info('The node \''.$key.'\' failed to comply all rules. The default value was set in the given array.');
+				\Log::info('ArrValidator\ArrValidator::run - The node \''.$key.'\' failed to comply all rules. The default value was set in the given array.');
 			}
 		}
 	}
