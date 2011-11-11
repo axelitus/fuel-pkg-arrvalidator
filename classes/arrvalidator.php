@@ -197,29 +197,38 @@ class ArrValidator
 	 *
 	 * @param string $name the node's identifier as a dot-separated key name, an ArrValidator_Node object
 	 * or an ArrValidator_Node array representation.
-	 * @param mixed $default the node's default value.
+	 * @param mixed $default optional the node's default value (will be set to null, be careful).
 	 * @param bool overwrite optional flag to force overwritting the node.
 	 * @param array $rules optional an array of rules in the format:
 	 * array(array('operator' => string, ['operand' => mixed]))
 	 * @return ArrValidator_Node the added or previously existing node.
 	 */
-	public function add_node($name, $default, $overwrite = false, array $rules = array())
+	public function add_node($name, $default = null, $overwrite = false, array $rules = array())
 	{
-		// TODO: Accept objects and array reps
+		if (is_object($default) && $default instanceof ArrValidator_Node)
+		{
+			$node = $default;
+		}
+		elseif(is_array($name))
+		{
+			$node = ArrValidator_Node::from_array($name);
+		}
+		elseif(is_string($name))
+		{
+			$node = ArrValidator_Node::forge($default);
+			$node->add_rules($rules);
+		}
+		else
+		{
+			throw new InvalidArgumentException('We cannot add a node from the given parameters, please verify them and try again.');
+		}
+		
 		if ($overwrite || ! $this->has_node($name))
 		{
-			if (is_object($default) && $default instanceof ArrValidator_Node)
-			{
-				$this->_nodes[$name] = $default;
-			}
-			else
-			{
-				$this->_nodes[$name] = ArrValidator_Node::forge($default);
-				$this->_nodes[$name]->add_rules($rules);
-			}
+			$this->_nodes[$node->get_name()] = $node;
 		}
 
-		return $this->_nodes[$name];
+		return $node;
 	}
 
 	/**
@@ -258,7 +267,6 @@ class ArrValidator
 	 */
 	public function add_nodes(array $nodes)
 	{
-		// TODO: FIX
 		foreach ($nodes as $node)
 		{
 			$this->add_node($node);
