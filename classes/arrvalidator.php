@@ -197,11 +197,11 @@ class ArrValidator
 	}
 
 	/**
-	 * Adds a node only if it does not exist. If the node already exists it will be returned.
+	 * Adds a node if it does not exist. If the node already exists it will be returned.
 	 * If the $overwrite flag is set to true, then the existing node will be overwritten.
 	 *
 	 * @param string $name the node's identifier as a dot-separated key name
-	 * @param mixed $default optional the node's default value
+	 * @param mixed $default optional the node's default value.
 	 * @param bool overwrite optional flag to force overwritting the node.
 	 * @param array $rules optional an array of rules in the format:
 	 * array(array('operator' => string, ['operand' => mixed]))
@@ -209,15 +209,59 @@ class ArrValidator
 	 */
 	public function add_node($name, $default, $overwrite = false, array $rules = array())
 	{
-		$node = ArrValidator_Node::forge($default);
-		$node->add_rules($rules);
+		if ($overwrite || ! $this->has_node($name))
+		{
+			$node = ArrValidator_Node::forge($default);
+			$node->add_rules($rules);
 
+			return $this->add_node_object($name, $node);
+		}
+		else
+		{
+			return $this->_nodes[$name];
+		}
+	}
+
+	/**
+	 * Adds a node from an object if it does not exist. If the node already exists it will be returned.
+	 * If the $overwrite flag is set to true, then the existing node will be overwritten.
+	 *
+	 * @param string $name the node's identifier as a dot-separated key name
+	 * @param ArrValidator_Node $node the node object to be added.
+	 * @param bool overwrite optional flag to force overwritting the node.
+	 * @return ArrValidator_Node the added or previously existing node.
+	 */
+	public function add_node_object($name, ArrValidator_Node $node, $overwrite = false)
+	{
 		if ($overwrite || ! $this->has_node($name))
 		{
 			$this->_nodes[$name] = $node;
 		}
 
-		return $node;
+		return $this->_nodes[$name];
+	}
+
+	/**
+	 * Adds a node from an array if it does not exist. If the node already exists it will be returned.
+	 * If the $overwrite flag is set to true, then the existing node will be overwritten.
+	 *
+	 * @param string $name the node's identifier as a dot-separated key name
+	 * @param array $array the node's array representation to be added.
+	 * @param bool overwrite optional flag to force overwritting the node.
+	 * @return ArrValidator_Node the added or previously existing node.
+	 */
+	public function add_node_array($name, array $array, $overwrite = false)
+	{
+		if ($overwrite || ! $this->has_node($name))
+		{
+			$node = ArrValidator_Node::from_array($array);
+
+			return $this->add_node_object($name, $node);
+		}
+		else
+		{
+			return $this->_nodes[$name];
+		}
 	}
 
 	/**
@@ -251,6 +295,7 @@ class ArrValidator
 	/**
 	 * Adds an array of nodes to the ArrValidator instance.
 	 * The array can contain ArrValidator_Node objects or ArrValidator_Node array representations.
+	 * Non-identified items in the array are skipped.
 	 *
 	 * @param array $nodes array of node array representations indexed by node name.
 	 * @param bool $overwrite optional whether the previously existing nodes should be overwritten.
@@ -260,7 +305,14 @@ class ArrValidator
 	{
 		foreach ($nodes as $key => $node)
 		{
-			$this->add_node($key, $node->get_default(), $overwrite, $node->get_rules());
+			if ($node instanceof ArrValidator_Node)
+			{
+				$this->add_node_object($key, $node, $overwrite);
+			}
+			elseif (is_array($node))
+			{
+				$this->add_node_array($key, $node, $overwrite);
+			}
 		}
 
 		return $this;
@@ -316,8 +368,7 @@ class ArrValidator
 		{
 			foreach ($nodes as $key => $node)
 			{
-				$node = ArrValidator_Node::from_array($node);
-				$return->add_node($key, $node->get_default(), true, $node->get_rules());
+				$return->add_node_array($key, $node, true);
 			}
 		}
 
