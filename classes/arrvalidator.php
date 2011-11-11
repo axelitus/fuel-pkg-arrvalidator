@@ -252,13 +252,15 @@ class ArrValidator
 	 * Adds an array of nodes to the ArrValidator instance.
 	 * The array can contain ArrValidator_Node objects or ArrValidator_Node array representations.
 	 *
+	 * @param array $nodes array of node array representations indexed by node name.
+	 * @param bool $overwrite optional whether the previously existing nodes should be overwritten.
 	 * @return Arr_Validator this instance for chaining.
 	 */
-	public function add_nodes(array $nodes)
+	public function add_nodes(array $nodes, $overwrite = false)
 	{
-		foreach ($nodes as $node)
+		foreach ($nodes as $key => $node)
 		{
-			$this->add_node($node);
+			$this->add_node($key, $node->get_default(), $overwrite, $node->get_rules());
 		}
 
 		return $this;
@@ -314,7 +316,8 @@ class ArrValidator
 		{
 			foreach ($nodes as $key => $node)
 			{
-				$return->add_node($key, ArrValidator_Node::from_array($node));
+				$node = ArrValidator_Node::from_array($node);
+				$return->add_node($key, $node->get_default(), true, $node->get_rules());
 			}
 		}
 

@@ -358,7 +358,7 @@ class ArrValidator_Node
 			}
 		}
 
-		return $true;
+		return true;
 	}
 
 }
