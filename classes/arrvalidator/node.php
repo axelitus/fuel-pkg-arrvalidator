@@ -193,7 +193,8 @@ class ArrValidator_Node
 	 */
 	public function remove_rule($index)
 	{
-		if (isset($this->_rules[$index]))
+		// We are using array_key_exists instead of \Arr::key_exists because we don't have a multi-dimensional array
+		if (array_key_exists($index, $this->_rules[]))
 		{
 			// Unset the rule form the array
 			unset($this->_rules[$index]);
