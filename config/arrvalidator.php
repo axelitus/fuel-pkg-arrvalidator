@@ -23,7 +23,7 @@ return array(
 	// 
 	'groups' => array(
 	),
-	'always_load' => array(
+	'auto_load' => array(
 		'validators' => array(
 		),
 		'groups' => array(
