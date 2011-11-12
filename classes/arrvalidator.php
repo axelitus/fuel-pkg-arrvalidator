@@ -29,9 +29,30 @@ class ArrValidator
 	const VERSION = '1.0';
 
 	/**
+	 * @var Holds the currently loaded configuration.
+	 */
+	static protected $_config = array();
+
+	// @formatter:off
+	/**
+	 * @var array Contains the default config values.
+	 */
+	static protected $_config_default = array( 
+		'groups' => array(
+		),
+		'auto_load' => array(
+			'validators' => array(
+			),
+			'groups' => array(
+			)
+		)
+	);
+	// @formatter:on
+
+	/**
 	 * @var array Holds the different ArrValidator instances.
 	 */
-	static public $_instances = array();
+	static protected $_instances = array();
 
 	/**
 	 * @var ArrValidator the default validator (the first that is loaded or the one that is manually set
@@ -51,7 +72,20 @@ class ArrValidator
 
 	public static function _init()
 	{
-		// TODO: Load config, auto-load validators from config
+		static::$_config = \Arr::merge(static::$_config_default, \Config::load('arrvalidator'));
+
+		// Load the validators first
+		if ( ! empty(static::$_config['auto_load']['validators']))
+		{
+			// TODO: finish this
+		}
+
+		// Load the groups of validators.
+		// The group validators take precedence, the previously loaded validators will be overwritten.
+		if ( ! empty(static::$_config['auto_load']['groups']))
+		{
+			// TODO: finish this
+		}
 	}
 
 	/**
@@ -69,7 +103,7 @@ class ArrValidator
 	 * then the instance will be overwritten.
 	 *
 	 * @param string $name the ArrValidator instance identifier.
-	 * @param bool $overwrite optional flag to force the existing instance to be overwriting if exists.
+	 * @param bool $overwrite optional flag to force the existing instance to be overwritten if exists.
 	 * @return ArrValidator the forged validator.
 	 */
 	public static function forge($name, $overwrite = false)
@@ -467,5 +501,97 @@ class ArrValidator
 		}
 	}
 
-	// TODO: methods to read validators from config files
+	/**
+	 * Loads a single or multiple validators from a file.
+	 *
+	 * @param mixed $file string file | config array | Config_Interface instance
+	 * @param bool $overwrite optional flag to force the existing validators to be overwritten if they
+	 * exist.
+	 * @return bool true if at least one file was loaded.
+	 */
+	public static function load_from_file($file, $overwrite = false)
+	{
+		$return = false;
+		$array = \Config::load($file);
+		if ( ! empty($array))
+		{
+			// Is it a single validator or multiple validators? If a 'name' item exists treat it as a single
+			// validator
+			if (\Arr::key_exists($array, 'name'))
+			{
+				// It's a single validator
+				static::from_array($array);
+			}
+			else
+			{
+				// There are multiple validators
+				static::multiple_from_array($array);
+			}
+
+			$return = true;
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Loads a validators from a group.
+	 *
+	 * @param string|array $group a group's name or an array containing group's name to be loaded.
+	 * @param bool $overwrite optional flag to force the existing validators to be overwritten if they
+	 * exist.
+	 * @return bool true if at least one file was loaded.
+	 */
+	public static function load_from_group($groups, $overwrite = false)
+	{
+		$return = false;
+
+		// One group
+		if (is_string($groups))
+		{
+			// Get group's validators
+			$validators = \Arr::get(static::$_config, 'groups.'.$groups, array());
+			if (is_string($validators))
+			{
+				// Arrayify the validator
+				$validators = array($validators);
+			}
+
+			// Load the group's validators
+			foreach ($validators as $validator)
+			{
+				if (static::load_from_file($validator, $overwrite))
+				{
+					$return = true;
+				}
+			}
+		}
+		// Multiple groups
+		elseif (is_array($groups))
+		{
+			// Loop through each group
+			foreach ($groups as $group)
+			{
+				// Get group's validators
+				$validators = \Arr::get(static::$_config, 'groups.'.$group, array());
+				if (is_string($validators))
+				{
+					// Arrayify the validator
+					$validators = array($validators);
+				}
+
+				// Load the group's validators
+				foreach ($validators as $validator)
+				{
+					if (static::load_from_file($validator, $overwrite))
+					{
+						$return = true;
+					}
+				}
+			}
+		}
+
+		return $return;
+	}
+
 }
