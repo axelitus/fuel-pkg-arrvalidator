@@ -74,17 +74,14 @@ class ArrValidator
 	{
 		static::$_config = \Arr::merge(static::$_config_default, \Config::load('arrvalidator'));
 
-		// Load the validators first
-		if ( ! empty(static::$_config['auto_load']['validators']))
-		{
-			// TODO: finish this
-		}
+		// Load the groups of validators first.
+		static::load_from_group(static::$_config['auto_load']['groups']);
 
-		// Load the groups of validators.
-		// The group validators take precedence, the previously loaded validators will be overwritten.
-		if ( ! empty(static::$_config['auto_load']['groups']))
+		// Load the validators. The single validators take precedence, the previously loaded validators (from
+		// groups) will be overwritten.
+		foreach(static::$_config['auto_load']['validators'] as $validator)
 		{
-			// TODO: finish this
+			static::load_from_file($validator);
 		}
 	}
 
@@ -553,8 +550,8 @@ class ArrValidator
 			$validators = \Arr::get(static::$_config, 'groups.'.$groups, array());
 			if (is_string($validators))
 			{
-				// Arrayify the validator
-				$validators = array($validators);
+				// Arrayify the validator if a comma-separated validators list was given
+				$validators = array_map('trim', explode(',', $validators));
 			}
 
 			// Load the group's validators
@@ -572,21 +569,9 @@ class ArrValidator
 			// Loop through each group
 			foreach ($groups as $group)
 			{
-				// Get group's validators
-				$validators = \Arr::get(static::$_config, 'groups.'.$group, array());
-				if (is_string($validators))
+				if (static::load_from_group($group, $overwrite))
 				{
-					// Arrayify the validator
-					$validators = array($validators);
-				}
-
-				// Load the group's validators
-				foreach ($validators as $validator)
-				{
-					if (static::load_from_file($validator, $overwrite))
-					{
-						$return = true;
-					}
+					$return = true;
 				}
 			}
 		}
