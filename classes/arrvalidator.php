@@ -55,12 +55,6 @@ class ArrValidator
 	static protected $_instances = array();
 
 	/**
-	 * @var ArrValidator the default validator (the first that is loaded or the one that is manually set
-	 * as default).
-	 */
-	static protected $_default = null;
-
-	/**
 	 * @var string Holds the name of the instance.
 	 */
 	protected $_name = '';
@@ -96,8 +90,8 @@ class ArrValidator
 	}
 
 	/**
-	 * Forges a new instance of ArrValidator, gets the existing. If the $overwrite flag is set to true,
-	 * then the instance will be overwritten.
+	 * Forges a new instance of ArrValidator or gets the existing one. If the $overwrite flag is set to
+	 * true, then the instance will be overwritten.
 	 *
 	 * @param string $name the ArrValidator instance identifier.
 	 * @param bool $overwrite optional flag to force the existing instance to be overwritten if exists.
@@ -123,29 +117,20 @@ class ArrValidator
 	 */
 	public static function exists($name)
 	{
-		return \Arr::key_exists(static::$_instances, $name);
+		// We don't use \Arr::key_exists() because we don't have a multi-dimensional array
+		return array_key_exists($name, static::$_instances);
 	}
 
 	/**
-	 * Gets an instance by name. Returns the default instance if the given name is an empty string. If no
-	 * instance is found by the given name, a new one will be forged.
+	 * Gets an instance by name. If no instance is found by the given name, a new one will be forged.
 	 *
 	 * @param string $name optional the ArrValidator instance identifier.
 	 * @return ArrValidator the existing instance or a newly forged one.
 	 */
-	public static function instance($name = '')
+	public static function instance($name)
 	{
-		// Do we want the default instance?
-		if ($name == '')
-		{
-			// Verify if a default instance exists and return it
-			if (static::$_default !== null)
-			{
-				return static::$_default;
-			}
-		}
 		// If the instance we want already exists return it
-		elseif (($return = \Arr::get(static::$_instances, $name, null)) !== null)
+		if (($return = ((static::exists($name))? static::$_instances[$name] : null)) !== null)
 		{
 			return $return;
 		}
@@ -155,12 +140,6 @@ class ArrValidator
 
 		// We don't use \Arr::set() because we don't want multi-dimensional array
 		static::$_instances[$name] = $return;
-
-		// Set the default instance as needed
-		if (static::$_default == null)
-		{
-			static::$_default = $return;
-		}
 
 		return $return;
 	}
@@ -176,14 +155,8 @@ class ArrValidator
 	{
 		if ( ! empty(static::$_instances))
 		{
-			$was_default = ($name == static::$_default->get_name());
-			\Arr::delete(static::$_instances, $name);
-
-			// If the deleted instance was the default get us a new one
-			if ($was_default)
-			{
-				static::$_default = reset(static::$_instances);
-			}
+			// We don't use \Arr::delete() because we don't have a multi-dimensional array
+			unset(static::$_instances[$name]);
 		}
 	}
 
@@ -304,7 +277,7 @@ class ArrValidator
 	 */
 	public function has_node($name)
 	{
-		$return = \Arr::key_exists($this->_nodes, $name);
+		$return = array_key_exists($name, $this->_nodes);
 
 		return $return;
 	}
