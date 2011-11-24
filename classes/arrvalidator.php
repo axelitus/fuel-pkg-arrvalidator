@@ -130,7 +130,7 @@ class ArrValidator
 	public static function instance($name)
 	{
 		// If the instance we want already exists return it
-		if (($return = ((static::exists($name))? static::$_instances[$name] : null)) !== null)
+		if (($return = ((static::exists($name)) ? static::$_instances[$name] : null)) !== null)
 		{
 			return $return;
 		}
@@ -145,8 +145,7 @@ class ArrValidator
 	}
 
 	/**
-	 * Removes a loaded instance. If the removed instance was the default then we fetch another one (the
-	 * first instance of the array).
+	 * Removes a loaded instance.
 	 *
 	 * @param string $name the ArrValidator instance identifier.
 	 * @return void
@@ -163,7 +162,7 @@ class ArrValidator
 	/**
 	 * Gets all the validator instances.
 	 *
-	 * @return array of ArrValidator instances.
+	 * @return array of ArrValidator objects.
 	 */
 	public static function instances()
 	{
@@ -171,7 +170,7 @@ class ArrValidator
 	}
 
 	/**
-	 * Deletes all loaded instances
+	 * Deletes all loaded instances.
 	 *
 	 * @return void
 	 */
@@ -250,7 +249,7 @@ class ArrValidator
 	 * If the $overwrite flag is set to true, then the existing node will be overwritten.
 	 *
 	 * @param string $name the node's identifier as a dot-separated key name
-	 * @param array $array the node's array representation to be added.
+	 * @param array $array the node's array structure to be added.
 	 * @param bool overwrite optional flag to force overwritting the node.
 	 * @return ArrValidator_Node the added or previously existing node.
 	 */
@@ -298,10 +297,10 @@ class ArrValidator
 
 	/**
 	 * Adds an array of nodes to the ArrValidator instance.
-	 * The array can contain ArrValidator_Node objects or ArrValidator_Node array representations.
+	 * The array can contain ArrValidator_Node objects or ArrValidator_Node array structure.
 	 * Non-identified items in the array are skipped.
 	 *
-	 * @param array $nodes array of node array representations indexed by node name.
+	 * @param array $nodes array of node array structures indexed by node name.
 	 * @param bool $overwrite optional whether the previously existing nodes should be overwritten.
 	 * @return Arr_Validator this instance for chaining.
 	 */
@@ -336,10 +335,10 @@ class ArrValidator
 	}
 
 	/**
-	 * Gets the instance's array representation.
+	 * Gets the instance's array structure.
 	 *
 	 * @param string $ommit_name optional whether to ommit the 'name' item in the array.
-	 * @return array the validator's array representation.
+	 * @return array the validator's array structure.
 	 */
 	public function as_array($ommit_name = false)
 	{
@@ -358,10 +357,11 @@ class ArrValidator
 	}
 
 	/**
-	 * Forges an instance from an array representation. The 'name' item cannot be ommited using this
-	 * method or else you'll get only one validator with an empty string as a name.
+	 * Forges an instance from an array structure. The 'name' item should not be ommited using this
+	 * method or else you'll get a validator with an empty string as a name (and so it is identified by
+	 * it in the instances array).
 	 *
-	 * @param array $array the validator's array representation to forge an instance from.
+	 * @param array $array the validator's array structure to forge an instance from.
 	 * @return ArrValidator the forged instance.
 	 */
 	public static function from_array(array $array)
@@ -380,10 +380,11 @@ class ArrValidator
 	}
 
 	/**
-	 * Gets an array of all loaded ArrValidator instances as their array representations.
+	 * Gets an array of all loaded ArrValidator instances as their array structures.
 	 *
-	 * @param string $ommit_name optional whether to ommit the 'name' item in the arrays.
-	 * @return array of ArrValidator instances array representations
+	 * @param string $ommit_name optional whether to ommit the 'name' item in the arrays, as the
+	 * individual validator array structures are named.
+	 * @return array of ArrValidator object array structures
 	 */
 	public static function all_as_array($ommit_name = false)
 	{
@@ -398,11 +399,11 @@ class ArrValidator
 	}
 
 	/**
-	 * Loads multiple instances from an array of validators. If the flag $empty_first is set to true,
-	 * then the instances array will be emptied prior to the load process.
+	 * Loads multiple instances from an array of validator array structures. If the flag $empty_first is
+	 * set to true, then the instances array will be emptied prior to the load process.
 	 *
 	 * Note:
-	 * The 'name' item inside a validator takes precedence to the validator's index.
+	 * The 'name' item inside a validator takes precedence to the validator's key name.
 	 * array(
 	 *     'validator_index' => array(         // <- If 'name' item is not present, this will be used
 	 *         'name' => 'validator_name',     // <- Takes precedence
@@ -430,9 +431,6 @@ class ArrValidator
 				$validator['name'] = $key;
 			}
 			$validator = ArrValidator::from_array($validator);
-
-			// We don't use \Arr::set() because we don't want multi-dimensional array
-			static::$_instances[$validator->get_name()] = $validator;
 		}
 	}
 
@@ -505,7 +503,7 @@ class ArrValidator
 	}
 
 	/**
-	 * Loads a validators from a group.
+	 * Loads a validators from a group (from the configuration file).
 	 *
 	 * @param string|array $group a group's name or an array containing group's name to be loaded.
 	 * @param bool $overwrite optional flag to force the existing validators to be overwritten if they
