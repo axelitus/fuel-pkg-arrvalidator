@@ -362,11 +362,13 @@ class ArrValidator
 	 * it in the instances array).
 	 *
 	 * @param array $array the validator's array structure to forge an instance from.
+	 * @param bool $overwrite optional flag to force the existing validator to be overwritten if it
+	 * exist.
 	 * @return ArrValidator the forged instance.
 	 */
-	public static function from_array(array $array)
+	public static function from_array(array $array, $overwrite = false)
 	{
-		$return = static::forge(\Arr::get($array, 'name', ''));
+		$return = static::forge(\Arr::get($array, 'name', ''), $overwrite);
 
 		if (($nodes = \Arr::get($array, 'nodes')) !== null)
 		{
@@ -413,14 +415,17 @@ class ArrValidator
 	 *     )
 	 * )
 	 *
+	 * @param bool $overwrite optional flag to force the existing validators to be overwritten if they
+	 * exist.
 	 * @param bool $empty_first optional whether to empty the instances array first or not.
 	 * @return void
 	 */
-	public static function multiple_from_array(array $array, $empty_first = false)
+	public static function multiple_from_array(array $array, $overwrite = false, $empty_first = false)
 	{
 		if ($empty_first)
 		{
 			static::empty_instances();
+			$overwrite = true;
 		}
 
 		foreach ($array as $key => $validator)
@@ -430,7 +435,7 @@ class ArrValidator
 			{
 				$validator['name'] = $key;
 			}
-			$validator = ArrValidator::from_array($validator);
+			$validator = ArrValidator::from_array($validator, $overwrite);
 		}
 	}
 
@@ -488,12 +493,12 @@ class ArrValidator
 			if (\Arr::key_exists($array, 'name') || \Arr::key_exists($array, 'nodes'))
 			{
 				// It's a single validator
-				static::from_array($array);
+				static::from_array($array, $overwrite);
 			}
 			else
 			{
 				// There are multiple validators
-				static::multiple_from_array($array);
+				static::multiple_from_array($array, $overwrite);
 			}
 
 			$return = true;
