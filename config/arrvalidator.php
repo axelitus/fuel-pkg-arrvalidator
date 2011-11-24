@@ -20,12 +20,15 @@
  * @link        http://github.com/axelitus/fuel-pkg-arrvalidator
  */
 return array(
-	// 
+	// Array that defines groups of validators as named arrays or comma-separated string of validators. 
 	'groups' => array(
 	),
+	// Determines which validators and groups will be auto-loaded once the class is initiated.
 	'auto_load' => array(
+		// The validators that will be auto-loaded
 		'validators' => array(
 		),
+		// The groups of validators that will be auto-loaded (the names of the groups defined previously).
 		'groups' => array(
 		)
 	)

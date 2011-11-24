@@ -79,7 +79,7 @@ class ArrValidator
 
 		// Load the validators. The single validators take precedence, the previously loaded validators (from
 		// groups) will be overwritten.
-		foreach(static::$_config['auto_load']['validators'] as $validator)
+		foreach (static::$_config['auto_load']['validators'] as $validator)
 		{
 			static::load_from_file($validator);
 		}
@@ -451,7 +451,7 @@ class ArrValidator
 
 		foreach ($array as $key => $validator)
 		{
-			// Get the name from the key as a fallback if no 'name' item is in validator array
+			// Get the name from the key as a fallback if no 'name' item is inside the validator array
 			if ( ! \Arr::key_exists($validator, 'name'))
 			{
 				$validator['name'] = $key;
@@ -512,9 +512,9 @@ class ArrValidator
 		$array = \Config::load($file);
 		if ( ! empty($array))
 		{
-			// Is it a single validator or multiple validators? If a 'name' item exists treat it as a single
-			// validator
-			if (\Arr::key_exists($array, 'name'))
+			// Is it a single validator or multiple validators? If a 'name' item exists or a 'nodes' item exists
+			// treat it as a single validator, if not there must be more validators, load multiple.
+			if (\Arr::key_exists($array, 'name') || \Arr::key_exists($array, 'nodes'))
 			{
 				// It's a single validator
 				static::from_array($array);
