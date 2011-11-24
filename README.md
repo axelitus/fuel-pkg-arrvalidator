@@ -67,8 +67,8 @@ An example of the contents of a `arrvalidator.php` config file:
 		'groups' => array(
 			'connections' => 'arrvalidator/connections/db, arrvalidator/connections/ldap',
 			'webservices' => array(
-				'arrvalidator/ws/amazon',
-				'arrvalidator/ws/google'
+				'arrvalidator/ws/google',
+				'arrvalidator/ws/amazon'
 			)
 		),
 		'auto_load' => array(
@@ -235,15 +235,298 @@ The operand count needed for the operator to work includes the main operand (whi
 
 ###### operand (type: mixed, default: null)
 
-The additional operands needed for the rule to be applied. From the list above one can see that from the two-operand operators on this entry is needed. When just one operand is needed the valu must be given, if more than one operand is needed an array of operands should be given.
+The additional operand(s) needed for the rule to be applied. From the list above, for the two-operand and three-operand operators this entry is needed. When just one operand is needed the operand value is to be given, if more than one operand is needed an array of operand values should be given.
 
 #### Multiple Validators Description File
 
+A multiple validators description file follows the same rules as the single validator description file but instead of having only one description, it has an array of validator descriptions.
 
+A multiple validator description file looks like this:
+
+	return array(
+		array(
+			'name' => 'ldap',
+			'nodes' => array(
+				'connection.server' => array(
+					'default' => 'defaultserver.mydomain.com',
+					'rules' => array(
+						array(
+							'operator' => 'is_string'
+						),
+						array(
+							'operator' => '!empty'
+						)
+					)
+				),
+				'connection.port' => array(
+					'default' => 389,
+					'rules' => array(
+						array(
+							'operator' => 'is_numeric',
+						),
+						array(
+							'operator' => 'between',
+							'operand' => array(1, 65535)
+						)
+					)
+				)
+			)
+		),
+		array(
+			'name' => 'db',
+			'nodes' => array(
+				'connection.server' => array(
+					'default' => 'dbserver.mydomain.com',
+					'rules' => array(
+						array(
+							'operator' => 'is_string'
+						),
+						array(
+							'operator' => '!empty'
+						)
+					)
+				),
+				'connection.port' => array(
+					'default' => 3366,
+					'rules' => array(
+						array(
+							'operator' => 'is_numeric',
+						),
+						array(
+							'operator' => 'between',
+							'operand' => array(1, 65535)
+						)
+					)
+				)
+			)
+		)
+	);
 
 ### Methods
 
+The most common methods are described here. Please refer to the doc-blocks in the actual code.
 
+#### ArrValidator class
+
+This is the main ArrValidator package class.
+
+##### ArrValidator::VERSION
+
+Contains a string for the current version of the package.
+
+##### ArrValidator::forge($name, $overwrite = false)
+
+**Description:** Forges a new instance of `ArrValidator` or gets the existing one. If the `$overwrite` flag is set to `true`, then the instance will be overwritten.  
+**Static:** Yes  
+**Return:** `ArrValidator` the validator instance
+
+	$validator = ArrValidator::forge('FirstValidator');
+
+	// $validator2 will get the previously created $validator
+	$validator2 = ArrValidator::forge('FirstValidator');
+
+	// $validator3 will get a new validator named FirstValidator.
+	$validator3 = ArrValidator::forge('FirstValidator', true);
+
+This is the status of variables after all three calls:
+
+	($validator = $validator2) != $validator3
+
+The validator named _FirstValidator_ is no longer the instance that `$variable` and `$variable2` hold, it was overwritten inside the `ArrValidator` instances array with the last method call.
+
+##### ArrValidator::exists($name)
+
+**Description:** Verifies if the named `ArrValidator` instance already exists.  
+**Static:** Yes  
+**Return:** `bool`
+
+	if(ArrValidator::exists('FirstValidator'))
+	{
+		// do something if the validator already exists
+	}
+
+##### ArrValidator::instance($name)
+
+**Description:** Gets an instance by name. If no instance is found by the given name, a new one will be forged.  
+**Static:** Yes  
+**Return:** `ArrValidator` the validator instance
+
+	// Gets the previously created validator
+	$validator = ArrValidator::instance('FirstValidator');
+
+	// Gets a newly created validator
+	$validator2 = ArrValidator::instance('SecondValidator');
+
+##### ArrValidator::remove($name)
+
+**Description:** Removes a loaded instance.  
+**Static:** Yes  
+**Return:** `void`
+
+	ArrValidator::remove('SecondValidator');
+
+##### ArrValidator::instances()
+
+**Description:** Gets all the validator instances.  
+**Static:** Yes  
+**Return:** `array` of `ArrValidator` objects
+
+	$validators = ArrValidator::instances();
+	foreach($validators as $validator)
+	{
+		// do something with each validator
+	}
+
+##### ArrValidator::empty\_instances()
+
+**Description:** Deletes all loaded instances.  
+**Static:** Yes  
+**Return:** `void`
+
+	ArrValidator::empty_instances();
+
+##### ArrValidator::from\_array(array $array, $overwrite = false)
+
+**Description:** Forges an instance from an array representation. The `name` item should not be ommited using this method or else you'll get a validator with an empty string as a name (and so it is identified by it in the instances array).
+
+Please refer to the section _Single Validator Description File_ where the validator array structure is described.  
+**Static:** Yes  
+**Return:** `ArrValidator` the validator instance
+
+	$arra = array(
+        'name' => 'ldap',
+        'nodes' => array(
+            'connection.server' => array(
+                'default' => 'defaultserver.mydomain.com',
+                'rules' => array(
+                    array(
+                        'operator' => 'is_string'
+                    ),
+                    array(
+                        'operator' => '!empty'
+                    )
+                )
+            ),
+            'connection.port' => array(
+                'default' => 389,
+                'rules' => array(
+                    array(
+                        'operator' => 'is_numeric',
+                    ),
+                    array(
+                        'operator' => 'between',
+                        'operand' => array(1, 65535)
+                    )
+                )
+            )
+        )
+    );
+	$validator = ArrValidator::from_array($array);
+
+##### ArrValidator::all\_as\_array($ommit_name = false)
+
+**Description:** Gets an array of all loaded `ArrValidator` instances as their array structures.  
+**Static:** Yes  
+**Return:** `array` of `ArrValidator` object array structures
+
+	ArrValidator::forge('FirstValidator');
+	ArrValidator::forge('SecondValidator');
+	$array = ArrValidator::all_as_array();
+	$array_ommited = ArrValidator::all_as_array(true);
+
+The variable `$array` will contain:
+
+	array(
+		'FirstValidator' => array(
+			'name' => 'FirstValidator',
+			'nodes' => array()
+		),
+		'SecondValidator' => array(
+			'name' => 'SecondValidator',
+			'nodes' => array()
+		)
+	);
+
+wheras the variable `$array_ommited` will contain:
+
+	array(
+		'FirstValidator' => array(
+			'nodes' => array()
+		),
+		'SecondValidator' => array(
+			'nodes' => array()
+		)
+	);
+
+##### ArrValidator::multiple\_from\_array(array $array, $overwrite = false, $empty\_first = false)
+
+**Description:** Loads multiple instances from an array of validator array structures. If the flag `$empty_first` is set to `true`, then the instances array will be emptied prior to the load process.
+
+Note: The `name` item inside a validator takes precedence to the validator's key name.  
+**Static:** Yes  
+**Return:** `void`
+
+	$mult_validators = array(
+		'FirstValidator' => array(
+			'name' => 'FirstValidatorPrecedence',
+			'nodes' => array()
+		),
+		'SecondValidator' => array(
+			'nodes' => array()
+		)
+	);
+	ArrValidator::multiple_from_array($mult_validators);
+	echo '<pre>';
+	print_r(ArrValidator::instances());
+	echo '</pre>';
+
+will output:
+
+	Array
+	(
+	    [FirstValidatorPrecedence] => ArrValidator\ArrValidator Object
+	        (
+	            [_name:protected] => FirstValidatorPrecedence
+	            [_nodes:protected] => Array
+	                (
+	                )
+	
+	        )
+	
+	    [SecondValidator] => ArrValidator\ArrValidator Object
+	        (
+	            [_name:protected] => SecondValidator
+	            [_nodes:protected] => Array
+	                (
+	                )
+	
+	        )
+	
+	)
+
+##### ArrValidator::load\_from\_file($file, $overwrite = false)
+
+**Description:** Loads a single or multiple validators from a file.
+
+Please refer to the section _Single Validator Description File_ where the validator array structure in files usage is described.  
+**Static:** Yes  
+**Return:** `bool`
+
+	ArrValidator::load_from_file('arrvalidator/ws/google');
+	ArrValidator::load_from_file('arrvalidator/ws/amazon', true);
+
+##### ArrValidator::load\_from\_group($groups, $overwrite = false)
+
+**Description:** Loads a validators from a group (from the configuration file).  
+**Static:** Yes  
+**Return:** `bool`
+
+	ArrValidator::load_from_group('connections');
+	ArrValidator::load_from_group('webservices', true);
+
+#### ArrValidator\_Node class
+
+To be written...
 
 ## Future development
 
