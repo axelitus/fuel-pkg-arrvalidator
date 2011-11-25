@@ -335,11 +335,11 @@ class ArrValidator_Node
 			// Loop through each rule
 			foreach ($this->_rules as $rule)
 			{
+				// Get the operand(s) if it(they) exist(s)
+				$operand = \Arr::get($rule, 'operand');
+				
 				if ($item_exists)
 				{
-					// Get the operand(s) if it(they) exist(s)
-					$operand = \Arr::get($rule, 'operand');
-
 					// Apply operator. If the result is false then set the return value accordingly and break the loop.
 					if (ArrValidator_Operator::apply($item, $rule['operator'], $operand) === false)
 					{
