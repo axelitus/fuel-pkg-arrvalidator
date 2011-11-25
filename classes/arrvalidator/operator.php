@@ -86,7 +86,7 @@ class ArrValidator_Operator
 	const INSTANCE_OF = 'instanceof';
 	const NOT_INSTANCE_OF = '!instanceof';
 
-	const REGEXP = 'regexp';
+	const REGEX = 'regex';
 
 	// three-operand operators
 	const BETWEEN = '<==>';
@@ -142,7 +142,7 @@ class ArrValidator_Operator
 				case static::GREATER_THAN_OR_EQUAL:
 				case static::INSTANCE_OF:
 				case static::NOT_INSTANCE_OF:
-				case static::REGEXP:
+				case static::REGEX:
 				case static::BETWEEN:
 				case static::BETWEEN_ALIAS:
 				case static::NOT_BETWEEN:
@@ -205,7 +205,7 @@ class ArrValidator_Operator
 				case static::GREATER_THAN_OR_EQUAL:
 				case static::INSTANCE_OF:
 				case static::NOT_INSTANCE_OF:
-				case static::REGEXP:
+				case static::REGEX:
 					$return = 2;
 				break;
 				case static::BETWEEN:
@@ -338,9 +338,18 @@ class ArrValidator_Operator
 				case static::NOT_INSTANCE_OF:
 					$return = ( ! ($main_operand instanceof $secondary_operand));
 				break;
-				case static::REGEXP:
-					// TODO: eval regexp
-					$return = false;
+				case static::REGEX:
+					if (is_string($secondary_operand))
+					{
+						if (preg_match($secondary_operand, $main_operand))
+						{
+							$return = true;
+						}
+					}
+					else
+					{
+						throw new InvalidArgumentException('The operator REGEX requires the secondary operand to be a string that defines a regular expression pattern to look for.');
+					}
 				break;
 				case static::BETWEEN:
 				case static::BETWEEN_ALIAS:
