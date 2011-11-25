@@ -393,7 +393,7 @@ Please refer to the section _Single Validator Description File_ where the valida
 **Static:** Yes  
 **Return:** `ArrValidator` the validator instance
 
-	$arra = array(
+	$array = array(
         'name' => 'ldap',
         'nodes' => array(
             'connection.server' => array(
