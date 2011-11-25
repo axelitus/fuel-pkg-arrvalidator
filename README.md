@@ -477,32 +477,29 @@ Note: The `name` item inside a validator takes precedence to the validator's key
 	);
 	ArrValidator::multiple_from_array($mult_validators);
 	echo '<pre>';
-	print_r(ArrValidator::instances());
+	var_dump(ArrValidator::instances());
 	echo '</pre>';
 
-will output:
+will output something like this:
 
-	Array
-	(
-	    [FirstValidatorPrecedence] => ArrValidator\ArrValidator Object
-	        (
-	            [_name:protected] => FirstValidatorPrecedence
-	            [_nodes:protected] => Array
-	                (
-	                )
-	
-	        )
-	
-	    [SecondValidator] => ArrValidator\ArrValidator Object
-	        (
-	            [_name:protected] => SecondValidator
-	            [_nodes:protected] => Array
-	                (
-	                )
-	
-	        )
-	
-	)
+	array(2) {
+	  ["FirstValidatorPrecedence"]=>
+	  object(ArrValidator\ArrValidator)#14 (2) {
+	    ["_name":protected]=>
+	    string(24) "FirstValidatorPrecedence"
+	    ["_nodes":protected]=>
+	    array(0) {
+	    }
+	  }
+	  ["SecondValidator"]=>
+	  object(ArrValidator\ArrValidator)#15 (2) {
+	    ["_name":protected]=>
+	    string(15) "SecondValidator"
+	    ["_nodes":protected]=>
+	    array(0) {
+	    }
+	  }
+	}
 
 ##### ArrValidator::load\_from\_file($file, $overwrite = false)
 
@@ -523,6 +520,350 @@ Please refer to the section _Single Validator Description File_ where the valida
 
 	ArrValidator::load_from_group('connections');
 	ArrValidator::load_from_group('webservices', true);
+
+##### ArrValidator::get\_name()
+
+**Description:** Gets the validator's name.  
+**Static:** No  
+**Return:** `string`
+
+	$validator = ArrValidator::forge('FirstValidator');
+	echo $validator->get_name();
+
+##### ArrValidator::get\_nodes()
+
+**Description:** Gets the validator's nodes.  
+**Static:** No  
+**Return:** `array` of `ArrValidator_Node` objects
+
+	$validator = ArrValidator::instance('GoogleWebService');
+	foreach($validator->get_nodes() as $node)
+	{
+		// do something with each validator node
+	}
+
+##### ArrValidator::add\_node($name, $default, $overwrite = false, array $rules = array())
+
+**Description:** Adds a node if it does not exist. If the node already exists it will be returned. If the `$overwrite` flag is set to `true`, then the existing node will be overwritten.  
+**Static:** No  
+**Return:** `ArrValidator_Node` the added or previously existing node
+
+	$validator = ArrValidator::forge('FirstValidator');
+	$node = $validator->add_node('connection.port', 389);
+
+	$rules = array(
+		array(
+			'operator' => 'is_string'
+		),
+		array(
+			'operator' => '!empty'
+		)
+	);
+	$node2 = $validator->add_node('connection.server', 'defaultserver.mydomain.com', true, $rules);
+
+##### ArrValidator::add\_node\_object($name, ArrValidator\_Node $node, $overwrite = false)
+
+**Description:** Adds a node from an object if it does not exist. If the node already exists it will be returned. If the `$overwrite` flag is set to `true`, then the existing node will be overwritten.  
+**Static:** No  
+**Return:** `ArrValidator_Node` the added or previously existing node
+
+	$validator = ArrValidator::forge('FirstValidator');
+	$node = $validator->add_node_object('connection.port', ArrValidator_Node::forge(389));
+
+	$node2_obj = ArrValidator_Node::forge('defaultserver.mydomain.com');
+	$rules = array(
+		array(
+			'operator' => 'is_string'
+		),
+		array(
+			'operator' => '!empty'
+		)
+	);
+	$node2_obj->add_rules($rules);
+	$node2 = $validator->add_node_object('connection.server', $node2_obj, true);
+
+##### ArrValidator::add\_node\_array($name, array $array, $overwrite = false)
+
+**Description:** Adds a node from an array if it does not exist. If the node already exists it will be returned. If the `$overwrite` flag is set to `true`, then the existing node will be overwritten.  
+**Static:** No  
+**Return:** `ArrValidator_Node` the added or previously existing node
+
+	$validator = ArrValidator::forge('FirstValidator');
+	$node_arr = array(
+  		'default' => 389,
+  		'rules' => array(
+		)
+	);
+	$node = $validator->add_node_array('connection.port', $node_arr);
+
+	$node2_arr = array(
+		'default' => 'defaultserver.mydomain.com',
+		'rules' => array(
+			array(
+				'operator' => 'is_string'
+			),
+			array(
+				'operator' => '!empty'
+			),
+		),
+	);
+	$node2 = $validator->add_node_array('connection.server', $node2_arr, true);
+
+##### ArrValidator::has\_node($name)
+
+**Description:** Verifies if the node already exists in the validator. This only checks if the key exists in the node's array.  
+**Static:** No  
+**Return:** `bool`
+
+	if(!$validator->has_node('connection.server'))
+	{
+		$rules = array(
+			array(
+				'operator' => 'is_string'
+			),
+			array(
+				'operator' => '!empty'
+			)
+		);
+		$validator->add_node('connection.server', 'defaultserver.mydomain.com')->add_rules($rules);
+	}
+
+##### ArrValidator::remove\_node($name)
+
+**Description:** Removes a node from the validator.  
+**Static:** No  
+**Return:** `ArrValidator` this instance for chaining
+
+	$validator->remove_node('connection.server')->remove_node('connection.port');
+
+##### ArrValidator::add\_nodes(array $nodes, $overwrite = false)
+
+**Description:** Adds an array of nodes to the validator. The array can contain `ArrValidator_Node` objects or `ArrValidator_Node` array structures. The nodes must be identified by a key name.  
+**Static:** No  
+**Return:** `Arr_Validator` this instance for chaining
+
+	$validator = ArrValidator::forge('FirstValidator');
+	$nodes = array(
+		'connection.port' => array(
+			'default' => 389,
+			'rules' => array (
+			)
+		),
+		'connection.server' => array(
+			'default' => 'defaultserver.mydomain.com',
+			'rules' => array(
+				array(
+					'operator' => 'is_string',
+				), 
+				array (
+					'operator' => '!empty',
+				)
+			)
+		)
+	);
+	$validator->add_nodes($nodes);
+
+##### ArrValidator::empty\_nodes()
+
+**Description:** Empties the validator node's array.  
+**Static:** No  
+**Return:** `Arr_Validator` this instance for chaining
+
+	$validator->empty_nodes();
+
+##### ArrValidator::as\_array($ommit_name = false)
+
+**Description:** Gets the instance's array structure.  
+**Static:** No  
+**Return:** `array` the validator's array structure
+
+	$array = $validator->as_array();
+	$array2 = $validator->as_array(true);
+
+The variable `$array` will have something like this:
+
+	array(2) {
+	  ["name"]=>
+	  string(14) "FirstValidator"
+	  ["nodes"]=>
+	  array(2) {
+	    ["connection.port"]=>
+	    array(2) {
+	      ["default"]=>
+	      int(389)
+	      ["rules"]=>
+	      array(0) {
+	      }
+	    }
+	    ["connection.server"]=>
+	    array(2) {
+	      ["default"]=>
+	      string(26) "defaultserver.mydomain.com"
+	      ["rules"]=>
+	      array(2) {
+	        [0]=>
+	        array(1) {
+	          ["operator"]=>
+	          string(9) "is_string"
+	        }
+	        [1]=>
+	        array(1) {
+	          ["operator"]=>
+	          string(6) "!empty"
+	        }
+	      }
+	    }
+	  }
+	}
+
+The variable `$array2` will have something like this:
+
+	array(2) {
+	  ["nodes"]=>
+	  array(2) {
+	    ["connection.port"]=>
+	    array(2) {
+	      ["default"]=>
+	      int(389)
+	      ["rules"]=>
+	      array(0) {
+	      }
+	    }
+	    ["connection.server"]=>
+	    array(2) {
+	      ["default"]=>
+	      string(26) "defaultserver.mydomain.com"
+	      ["rules"]=>
+	      array(2) {
+	        [0]=>
+	        array(1) {
+	          ["operator"]=>
+	          string(9) "is_string"
+	        }
+	        [1]=>
+	        array(1) {
+	          ["operator"]=>
+	          string(6) "!empty"
+	        }
+	      }
+	    }
+	  }
+	}
+
+##### ArrValidator::run(array &$array, $force\_item\_set = true)
+
+**Description:** Runs the validator. Every node will be checked against the given array and if the node's validation fails the node's default value will be set into the array. If the item is not found and the `$force_item_set` flag is set to `true` then the item will be created with the default value.  
+**Static:** No  
+**Return:** `void`
+
+	// Loads a validator with two nodes
+	// Node: connection.server; Rules: is string and not empty
+	// Node: connection.port; Rules: is_numeric between 1 and 5000
+	$validator = ArrValidator::load_from_file('arrvalidator/connections/db')
+
+	// Test case 1
+	$array = array(
+		'connection' => array(
+			'server' => '',
+			'port' => 0
+		)
+	);
+	$validator->run($array);
+
+	// Test case 2
+	$array2 = array(
+		'connection' => array(
+			'server' => 'configured_server.mydomain.com'
+		)
+	);
+	$validator->run($array2);
+
+	// Test case 3
+	$array3 = array(
+		'connection' => array(
+			'server' => 'default_server.mydomain.com',
+			'port' => 0
+		)
+	);
+	$validator->run($array3);
+
+	// Test case 4
+	$array4 = array(
+		'connection' => array(
+			'server' => 'default_server.mydomain.com',
+			'port' => '2000'
+		)
+	);
+	$validator->run($array4);
+
+	// Test case 5
+	$array5 = array(
+		'connection' => array(
+			'server' => 'default_server.mydomain.com',
+			'port' => 2000
+		)
+	);
+	$validator->run($array5);
+
+For test case 1 the variable `$array` will contain this:
+
+array(1) {
+  ["connection"]=>
+  array(2) {
+    ["server"]=>
+    string(26) "defaultserver.mydomain.com"
+    ["port"]=>
+    int(389)
+  }
+}
+
+For test case 2 the variable `$array2` will contain this:
+
+	array(1) {
+	  ["connection"]=>
+	  array(2) {
+	    ["server"]=>
+	    string(30) "configured_server.mydomain.com"
+	    ["port"]=>
+	    int(389)
+	  }
+	}
+
+For test case 3 the variable `$array3` will contain this:
+
+	array(1) {
+	  ["connection"]=>
+	  array(2) {
+	    ["server"]=>
+	    string(27) "default_server.mydomain.com"
+	    ["port"]=>
+	    int(389)
+	  }
+	}
+
+For test case 4 the variable `$array4` will contain this:
+
+	array(1) {
+	  ["connection"]=>
+	  array(2) {
+	    ["server"]=>
+	    string(27) "default_server.mydomain.com"
+	    ["port"]=>
+	    string(4) "2000"
+	  }
+	}
+
+For test case 5 the variable `$array5` will contain this:
+
+	array(1) {
+	  ["connection"]=>
+	  array(2) {
+	    ["server"]=>
+	    string(27) "default_server.mydomain.com"
+	    ["port"]=>
+	    int(2000)
+	  }
+	}
 
 #### ArrValidator\_Node class
 
