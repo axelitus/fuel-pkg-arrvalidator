@@ -807,15 +807,15 @@ The variable `$array2` will have something like this:
 
 For test case 1 the variable `$array` will contain this:
 
-array(1) {
-  ["connection"]=>
-  array(2) {
-    ["server"]=>
-    string(26) "defaultserver.mydomain.com"
-    ["port"]=>
-    int(389)
-  }
-}
+	array(1) {
+	  ["connection"]=>
+	  array(2) {
+	    ["server"]=>
+	    string(26) "defaultserver.mydomain.com"
+	    ["port"]=>
+	    int(389)
+	  }
+	}
 
 For test case 2 the variable `$array2` will contain this:
 
@@ -872,7 +872,7 @@ To be written...
 ## Future development
 
 The first version has the basic functionality one would expect. New features will be evaluated and added as soon as possible.
-Please feel free to send feature erquests through the Github repository.
+Please feel free to send feature requests through the Github repository.
 
 ## Special Thanks
 
