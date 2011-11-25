@@ -185,7 +185,7 @@ The structure of the array that represents a rule is as follows:
 
 ###### operator (type: string)
 
-The operator for this rule that will be applied to the value of the item in the array that is being validated. If this entry does not exist, an `InvalidArgumentException` will be thrown. The following are the only valid operators (all of them are defined as constants in the class `ArrValidator_Operator`, this list is to be read as `[const\_name] -> actual\_value`):
+The operator for this rule that will be applied to the value of the item in the array that is being validated. If this entry does not exist, an `InvalidArgumentException` will be thrown. The following are the only valid operators (all of them are defined as constants in the class `ArrValidator_Operator`, this list is to be read as `[const_name] -> actual_value`):
 
 * one-operand operators
 	- [IS\_SET] -> 'isset'
