@@ -18,6 +18,8 @@
  * @author      Axel Pardemann (http://github.com/axelitus)
  * @link        http://github.com/axelitus/fuel-pkg-arrvalidator
  */
+Autoloader::add_namespace('ArrValidator', __DIR__.'/classes/');
+
 Autoloader::add_core_namespace('ArrValidator');
  
 Autoloader::add_classes(array(
