@@ -296,9 +296,8 @@ class ArrValidator
 	}
 
 	/**
-	 * Adds an array of nodes to the ArrValidator instance.
-	 * The array can contain ArrValidator_Node objects or ArrValidator_Node array structure.
-	 * Non-identified items in the array are skipped.
+	 * Adds an array of nodes to the validator. The array can contain ArrValidator_Node objects or
+	 * ArrValidator_Node array structures. The nodes must be identified by a key name.
 	 *
 	 * @param array $nodes array of node array structures indexed by node name.
 	 * @param bool $overwrite optional whether the previously existing nodes should be overwritten.
@@ -466,7 +465,7 @@ class ArrValidator
 			}
 			elseif ($validation === false)
 			{
-				// A rule has failed for the node, set the default value!
+				// A rule has failed for the node but the item exists, set the default value without further check!
 				\Arr::set($array, $key, $node->get_default());
 
 				\Log::info('ArrValidator\ArrValidator::run - The node \''.$key.'\' failed to comply all rules. The default value was set in the given array.');
