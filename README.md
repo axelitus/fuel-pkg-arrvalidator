@@ -224,7 +224,7 @@ The operator for this rule that will be applied to the value of the item in the 
 	- [GREATER\_THAN\_OR\_EQUAL] -> '>='
 	- [INSTANCE\_OF] -> 'instanceof'
 	- [NOT\_INSTANCE\_OF] -> '!instanceof'
-	- [REGEXP] -> 'regexp'
+	- [REGEX] -> 'regex'
 * three-operand operators
 	- [BETWEEN] -> '<==>'
 	- [BETWEEN\_ALIAS] -> 'between'
