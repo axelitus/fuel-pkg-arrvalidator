@@ -432,10 +432,12 @@ class ArrValidator
 	 * @param bool $overwrite optional flag to force the existing validators to be overwritten if they
 	 * exist.
 	 * @param bool $empty_first optional whether to empty the instances array first or not.
-	 * @return void
+	 * @return array of loaded ArrValidator objects.
 	 */
 	public static function multiple_from_array(array $array, $overwrite = false, $empty_first = false)
 	{
+		$return = array();
+
 		if ($empty_first)
 		{
 			static::empty_instances();
@@ -450,7 +452,10 @@ class ArrValidator
 				$validator['name'] = $key;
 			}
 			$validator = ArrValidator::from_array($validator, $overwrite);
+			$return[$validator->get_name()] = $validator;
 		}
+
+		return $return;
 	}
 
 	/**
