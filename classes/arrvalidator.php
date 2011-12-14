@@ -282,6 +282,21 @@ class ArrValidator
 	}
 
 	/**
+	 * Gets a specific node from the node's array or if not exists $default.
+	 *
+	 * @return ArrValidator_Node|mixed the existing node or $default value.
+	 */
+	public function get_node($name, $default = null)
+	{
+		if ($this->has_node($name))
+		{
+			return $this->_nodes[$name];
+		}
+
+		return $default;
+	}
+
+	/**
 	 * Removes a node from the validator.
 	 *
 	 * @param string $name the node's identifier as a dot-separated key name.
