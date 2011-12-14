@@ -69,13 +69,13 @@ class ArrValidator
 		static::$_config = \Arr::merge(static::$_config_default, \Config::load('arrvalidator'));
 
 		// Load the groups of validators first.
-		static::load_from_group(static::$_config['auto_load']['groups']);
+		static::from_group(static::$_config['auto_load']['groups']);
 
 		// Load the validators. The single validators take precedence, the previously loaded validators (from
 		// groups) will be overwritten.
 		foreach (static::$_config['auto_load']['validators'] as $validator)
 		{
-			static::load_from_file($validator);
+			static::from_file($validator);
 		}
 	}
 
@@ -494,11 +494,11 @@ class ArrValidator
 	 * @param mixed $file string file | config array | Config_Interface instance
 	 * @param bool $overwrite optional flag to force the existing validators to be overwritten if they
 	 * exist.
-	 * @return bool true if at least one file was loaded.
+	 * @return ArrValidator|array|bool the loaded validator or an array of loaded ArrValidator objects or
+	 * false if $file couldn't be loaded.
 	 */
-	public static function load_from_file($file, $overwrite = false)
+	public static function from_file($file, $overwrite = false)
 	{
-		$return = false;
 		$array = \Config::load($file);
 		if ( ! empty($array))
 		{
@@ -507,18 +507,16 @@ class ArrValidator
 			if (\Arr::key_exists($array, 'name') || \Arr::key_exists($array, 'nodes'))
 			{
 				// It's a single validator
-				static::from_array($array, $overwrite);
+				return static::from_array($array, $overwrite);
 			}
 			else
 			{
 				// There are multiple validators
-				static::multiple_from_array($array, $overwrite);
+				return static::multiple_from_array($array, $overwrite);
 			}
-
-			$return = true;
 		}
 
-		return $return;
+		return false;
 	}
 
 	/**
@@ -529,7 +527,7 @@ class ArrValidator
 	 * exist.
 	 * @return bool true if at least one file was loaded.
 	 */
-	public static function load_from_group($groups, $overwrite = false)
+	public static function from_group($groups, $overwrite = false)
 	{
 		$return = false;
 
@@ -547,7 +545,7 @@ class ArrValidator
 			// Load the group's validators
 			foreach ($validators as $validator)
 			{
-				if (static::load_from_file($validator, $overwrite))
+				if (static::from_file($validator, $overwrite))
 				{
 					$return = true;
 				}
@@ -559,7 +557,7 @@ class ArrValidator
 			// Loop through each group
 			foreach ($groups as $group)
 			{
-				if (static::load_from_group($group, $overwrite))
+				if (static::from_group($group, $overwrite))
 				{
 					$return = true;
 				}
